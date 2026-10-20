@@ -1,17 +1,24 @@
-import {ModeToggle} from "@/components/ui/mode-toggle";
-import {Button} from "@/components/ui/button";
-import {signOutAction} from "@/modules/auth/actions";
+"use client"
+
+import { useState } from "react"
+import { ConversationSidebar } from "@/modules/conversation"
+import { ChatPanel } from "@/modules/messages"
 
 export default function Home() {
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center gap-4 bg-zinc-50 font-sans dark:bg-black">
-
-        <ModeToggle/>
-      <h1> Bruhhhh</h1>
-
-        <form action={signOutAction}>
-            <Button type="submit">Log out</Button>
-        </form>
-    </div>
-  );
+    <main className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+      <ConversationSidebar
+        activeId={activeConversationId}
+        onSelect={setActiveConversationId}
+        onDeleteActive={() => setActiveConversationId(null)}
+      />
+      <ChatPanel
+        conversationId={activeConversationId}
+        onSelectConversation={setActiveConversationId}
+        onDeleteActive={() => setActiveConversationId(null)}
+      />
+    </main>
+  )
 }
