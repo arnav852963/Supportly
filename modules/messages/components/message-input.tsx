@@ -18,7 +18,7 @@ export function MessageInput({ conversationId }: MessageInputProps) {
   const createMutation = useCreateMessage()
 
   const handleSend = () => {
-    if (!content.trim() || createMutation.isPending) return
+    if (!content.trim()) return
 
     const trimmed = content.trim()
     setContent("")
@@ -64,14 +64,10 @@ export function MessageInput({ conversationId }: MessageInputProps) {
         <Button
           size="icon-sm"
           onClick={handleSend}
-          disabled={!content.trim() || createMutation.isPending}
+          disabled={!content.trim()}
           className="shrink-0 rounded-lg shadow-xs"
         >
-          {createMutation.isPending ? (
-            <Spinner className="size-3.5" />
-          ) : (
-            <SendHorizontal className="size-3.5" />
-          )}
+          <SendHorizontal className="size-3.5" />
           <span className="sr-only">Send message</span>
         </Button>
       </div>

@@ -18,8 +18,12 @@ export async function signUpAction(values: SignUpValues): Promise<ActionResult> 
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
   try {
-    await auth.api.signUpEmail({ body: parsed.data })
+    await auth.api.signUpEmail({
+      body: parsed.data,
+      headers: await headers(),
+    })
   } catch (error) {
+    console.error("signUpAction error:", error)
     if (error instanceof APIError) return { error: error.message }
     return { error: "Something went wrong. Please try again." }
   }
@@ -33,8 +37,12 @@ export async function signInAction(values: SignInValues): Promise<ActionResult> 
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
   try {
-    await auth.api.signInEmail({ body: parsed.data })
+    await auth.api.signInEmail({
+      body: parsed.data,
+      headers: await headers(),
+    })
   } catch (error) {
+    console.error("signInAction error:", error)
     if (error instanceof APIError) return { error: error.message }
     return { error: "Something went wrong. Please try again." }
   }

@@ -50,12 +50,9 @@ export function ConversationItem({
     e.preventDefault()
     if (!editTitle.trim()) return
 
-    updateMutation.mutate(
-      { id, title: editTitle.trim() },
-      {
-        onSuccess: () => setIsRenameOpen(false),
-      }
-    )
+    const newTitle = editTitle.trim()
+    setIsRenameOpen(false)
+    updateMutation.mutate({ id, title: newTitle })
   }
 
   const handleDelete = () => {

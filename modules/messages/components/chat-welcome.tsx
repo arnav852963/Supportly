@@ -40,7 +40,7 @@ export function ChatWelcome({ onSelect }: ChatWelcomeProps) {
   }
 
   return (
-    <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+    <div className="flex h-full w-full flex-1 flex-col items-center justify-center p-8 text-center">
       <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xs">
         <Bot className="size-7" />
       </div>

@@ -36,7 +36,7 @@ export function ConversationSidebar({
   return (
     <aside
       className={cn(
-        "flex h-full w-64 flex-col border-r bg-sidebar text-sidebar-foreground",
+        "flex h-full w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground",
         className
       )}
     >

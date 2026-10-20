@@ -48,12 +48,9 @@ export function ChatHeader({ conversationId, onDeleteActive }: ChatHeaderProps) 
     e.preventDefault()
     if (!editTitle.trim()) return
 
-    updateMutation.mutate(
-      { id: conversationId, title: editTitle.trim() },
-      {
-        onSuccess: () => setIsRenameOpen(false),
-      }
-    )
+    const newTitle = editTitle.trim()
+    setIsRenameOpen(false)
+    updateMutation.mutate({ id: conversationId, title: newTitle })
   }
 
   const handleDelete = () => {

@@ -16,18 +16,20 @@ export function ChatPanel({
   onSelectConversation,
   onDeleteActive,
 }: ChatPanelProps) {
-  if (!conversationId) {
-    return <ChatWelcome onSelect={onSelectConversation} />
-  }
-
   return (
     <section className="flex h-full flex-1 flex-col overflow-hidden bg-background">
-      <ChatHeader
-        conversationId={conversationId}
-        onDeleteActive={onDeleteActive}
-      />
-      <MessageList conversationId={conversationId} />
-      <MessageInput conversationId={conversationId} />
+      {!conversationId ? (
+        <ChatWelcome onSelect={onSelectConversation} />
+      ) : (
+        <>
+          <ChatHeader
+            conversationId={conversationId}
+            onDeleteActive={onDeleteActive}
+          />
+          <MessageList conversationId={conversationId} />
+          <MessageInput conversationId={conversationId} />
+        </>
+      )}
     </section>
   )
 }
