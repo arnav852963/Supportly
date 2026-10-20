@@ -9,27 +9,18 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  email        String    @unique
+  id            String         @id
+  email         String         @unique
   name          String?
-  posts         Post[]
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean        @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   sessions      Session[]
   accounts      Account[]
+  conversations conversation[]
 
   @@map("user")
-}
-
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  authorId  String
-  author    User    @relation(fields: [authorId], references: [id])
 }
 
 model Session {
@@ -78,4 +69,33 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model conversation {
+  id        String    @id
+  title     String?
+  creator   User      @relation(fields: [creatorId], references: [id])
+  creatorId String
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("conversation")
+}
+
+enum ROLE {
+  USER
+  BOT
+}
+
+model Message {
+  id             String       @id
+  content        String
+  conversation   conversation @relation(fields: [conversationId], references: [id])
+  conversationId String
+  role           ROLE
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("message")
 }
