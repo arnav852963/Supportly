@@ -1,8 +1,17 @@
+import { Suspense } from "react"
 import { redirectIfAuthenticated } from "@/modules/auth/actions/session"
 import { SignInForm } from "@/modules/auth/components/sign-in-form"
 
-export default async function SignInPage() {
+async function AuthCheck() {
   await redirectIfAuthenticated()
+  return null
+}
 
-  return <SignInForm />
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInForm />}>
+      <AuthCheck />
+      <SignInForm />
+    </Suspense>
+  )
 }
