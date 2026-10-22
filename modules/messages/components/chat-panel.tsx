@@ -1,5 +1,6 @@
 "use client"
 
+import { useChatStreams } from "../hooks"
 import { ChatWelcome } from "./chat-welcome"
 import { ChatHeader } from "./chat-header"
 import { MessageList } from "./message-list"
@@ -21,15 +22,41 @@ export function ChatPanel({
       {!conversationId ? (
         <ChatWelcome onSelect={onSelectConversation} />
       ) : (
-        <>
-          <ChatHeader
-            conversationId={conversationId}
-            onDeleteActive={onDeleteActive}
-          />
-          <MessageList conversationId={conversationId} />
-          <MessageInput conversationId={conversationId} />
-        </>
+        <ActiveChat
+          key={conversationId}
+          conversationId={conversationId}
+          onDeleteActive={onDeleteActive}
+        />
       )}
     </section>
+  )
+}
+
+function ActiveChat({
+  conversationId,
+  onDeleteActive,
+}: {
+  conversationId: string
+  onDeleteActive?: () => void
+}) {
+  const { streaminText, isstreaming, sendMessage } = useChatStreams(conversationId)
+
+  return (
+    <>
+      <ChatHeader
+        conversationId={conversationId}
+        onDeleteActive={onDeleteActive}
+      />
+      <MessageList
+        conversationId={conversationId}
+        streaminText={streaminText}
+        isstreaming={isstreaming}
+      />
+      <MessageInput
+        conversationId={conversationId}
+        onSend={(content) => sendMessage({ content })}
+        isstreaming={isstreaming}
+      />
+    </>
   )
 }

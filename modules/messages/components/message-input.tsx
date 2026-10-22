@@ -9,36 +9,53 @@ import { ROLE } from "@/app/generated/prisma/enums"
 import { useCreateMessage } from "../hooks"
 
 interface MessageInputProps {
-  conversationId: string
+  conversationId?: string
+  onSend?: (content: string) => Promise<void>
+  isstreaming?: boolean
 }
 
-export function MessageInput({ conversationId }: MessageInputProps) {
+export function MessageInput({
+  conversationId,
+  onSend,
+  isstreaming = false,
+}: MessageInputProps) {
   const [content, setContent] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const createMutation = useCreateMessage()
 
-  const handleSend = () => {
-    if (!content.trim() || createMutation.isPending) return
+  const isBusy = isstreaming || createMutation.isPending
+
+  const handleSend = async () => {
+    if (!content.trim() || isBusy) return
 
     const trimmed = content.trim()
     setContent("")
 
-    createMutation.mutate(
-      {
-        conversationId,
-        content: trimmed,
-        role: ROLE.USER,
-      },
-      {
-        onError: () => {
-          // Restore text if send fails
-          setContent(trimmed)
-        },
-        onSettled: () => {
-          textareaRef.current?.focus()
-        },
+    if (onSend) {
+      try {
+        await onSend(trimmed)
+      } catch {
+        setContent(trimmed)
+      } finally {
+        textareaRef.current?.focus()
       }
-    )
+    } else if (conversationId) {
+      createMutation.mutate(
+        {
+          conversationId,
+          content: trimmed,
+          role: ROLE.USER,
+        },
+        {
+          onError: () => {
+            setContent(trimmed)
+          },
+          onSettled: () => {
+            textareaRef.current?.focus()
+          },
+        }
+      )
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -56,7 +73,12 @@ export function MessageInput({ conversationId }: MessageInputProps) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask a question or type a message... (Enter to send, Shift+Enter for new line)"
+          disabled={isstreaming}
+          placeholder={
+            isstreaming
+              ? "AI is responding..."
+              : "Ask a question or type a message... (Enter to send, Shift+Enter for new line)"
+          }
           rows={1}
           className="min-h-10 resize-none border-0 bg-transparent p-1.5 text-sm shadow-none focus-visible:ring-0 focus-visible:border-0"
         />
@@ -64,10 +86,10 @@ export function MessageInput({ conversationId }: MessageInputProps) {
         <Button
           size="icon-sm"
           onClick={handleSend}
-          disabled={!content.trim() || createMutation.isPending}
+          disabled={!content.trim() || isBusy}
           className="shrink-0 rounded-lg shadow-xs"
         >
-          {createMutation.isPending ? (
+          {isBusy ? (
             <Spinner className="size-3.5" />
           ) : (
             <SendHorizontal className="size-3.5" />

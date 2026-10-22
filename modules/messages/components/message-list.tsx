@@ -4,21 +4,28 @@ import { useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
+import { ROLE } from "@/app/generated/prisma/enums"
 import { useMessages } from "../hooks"
 import { MessageItem } from "./message-item"
 import { MessagesEmpty } from "./messages-empty"
 
 interface MessageListProps {
   conversationId: string
+  streaminText?: string
+  isstreaming?: boolean
 }
 
-export function MessageList({ conversationId }: MessageListProps) {
+export function MessageList({
+  conversationId,
+  streaminText = "",
+  isstreaming = false,
+}: MessageListProps) {
   const { data: messages, isLoading, isError, refetch } = useMessages(conversationId)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages?.length])
+  }, [messages?.length, streaminText])
 
   if (isLoading) {
     return (
@@ -50,7 +57,7 @@ export function MessageList({ conversationId }: MessageListProps) {
     )
   }
 
-  if (!messages || messages.length === 0) {
+  if ((!messages || messages.length === 0) && !isstreaming) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <MessagesEmpty />
@@ -61,7 +68,7 @@ export function MessageList({ conversationId }: MessageListProps) {
   return (
     <ScrollArea className="flex-1 px-6">
       <div className="space-y-1 py-4">
-        {messages.map((msg) => (
+        {messages?.map((msg) => (
           <MessageItem
             key={msg.id}
             id={msg.id}
@@ -70,6 +77,16 @@ export function MessageList({ conversationId }: MessageListProps) {
             createdAt={msg.createdAt}
           />
         ))}
+
+        {/* Real-time Streaming AI Response */}
+        {isstreaming && (
+          <MessageItem
+            id="streaming-bot"
+            content={streaminText || "Thinking..."}
+            role={ROLE.BOT}
+          />
+        )}
+
         <div ref={bottomRef} className="h-1" />
       </div>
     </ScrollArea>

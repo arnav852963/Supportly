@@ -46,9 +46,15 @@ export function useUpdateConversation() {
   return useMutation({
     mutationFn: ({ id, title }: { id: string; title: string }) =>
       updateConversation(id, title),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: conversationKeys.all })
-      queryClient.invalidateQueries({ queryKey: conversationKeys.detail(variables.id) })
+    onSuccess: (updated) => {
+
+      queryClient.setQueryData<any[]>(conversationKeys.all, (old) =>
+        old?.map((c) => (c.id === updated.id ? { ...c, title: updated.title } : c))
+      )
+
+      queryClient.setQueryData(conversationKeys.detail(updated.id), (old: any) =>
+        old ? { ...old, title: updated.title } : old
+      )
     },
   })
 }
