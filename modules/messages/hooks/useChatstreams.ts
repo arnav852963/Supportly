@@ -39,29 +39,28 @@ export function useChatStreams(conversationId?: string) {
         throw new Error(errorText || "Failed to send message")
       }
 
-      // 1. Refetch messages so user's message appears immediately from DB
-      await queryClient.invalidateQueries({
-        queryKey: messageKeys.byConversation(activeConversationId),
-      })
-
-      // 2. Read the stream chunks as they arrive from OpenAI
+      // Read the stream chunks as they arrive from OpenAI
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
       let accumulated = ""
 
       if (reader) {
         while (true) {
-          const { done, value } = await reader.read()
+          const { done , value } = await reader.read()
           if (done) break
 
-          accumulated += decoder.decode(value, { stream: true })
-          setStreaminText(accumulated)
-          onChunk?.()
+            accumulated += decoder.decode(value, { stream: true })
+            setStreaminText(accumulated)
+            onChunk?.()
+
+          // await new Promise((resolve) => setTimeout(() => resolve("") , 1000))
+
+
         }
       }
 
       // 3. Clear temporary streaming state and re-sync final DB bot message
-      setStreaminText("")
+      // setStreaminText("")
 
       setIsstreaming(false)
 

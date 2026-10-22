@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Spinner } from "@/components/ui/spinner"
 import { ROLE } from "@/app/generated/prisma/enums"
-import { useCreateMessage } from "../hooks"
+import { useQueryClient } from "@tanstack/react-query"
+import { useCreateMessage, messageKeys } from "../hooks"
 
 interface MessageInputProps {
   conversationId?: string
@@ -22,6 +23,7 @@ export function MessageInput({
   const [content, setContent] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const createMutation = useCreateMessage()
+  const queryClient = useQueryClient()
 
   const isBusy = isstreaming || createMutation.isPending
 
@@ -30,6 +32,23 @@ export function MessageInput({
 
     const trimmed = content.trim()
     setContent("")
+
+    // Instantly append user message to the messages list and trigger re-render
+    if (conversationId) {
+      queryClient.setQueryData<any[]>(
+        messageKeys.byConversation(conversationId),
+        (old = []) => [
+          ...old,
+          {
+            id: `temp-${Date.now()}`,
+            conversationId,
+            content: trimmed,
+            role: ROLE.USER,
+            createdAt: new Date(),
+          },
+        ]
+      )
+    }
 
     if (onSend) {
       try {
